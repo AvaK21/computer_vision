@@ -1,3 +1,0 @@
-
-For there was a license file on the github version and not local so it wouldn't let me push
-git pull origin main --allow-unrelated-histories

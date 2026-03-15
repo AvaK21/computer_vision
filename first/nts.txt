@@ -1,0 +1,14 @@
+Note To Self
+Goal: Practice using python libraries that I haven't learned about in school. Gain experience using ai agents: claude code. Continual practice with Git/GitHub
+
+
+For there was a license file on the github version and not local so it wouldn't let me push
+git pull origin main --allow-unrelated-histories
+
+
+
+Learned it is important to research versions and compatability of version of python nad libraries
+--Add a requirement file
+
+Learned if give infomation to claude in a previous chat that is now void. Need to intentional say that this doesn't mattter or work with the current set up.
+--Should make a 'project' on claude with access to this github repo and a link to mediapipe github
