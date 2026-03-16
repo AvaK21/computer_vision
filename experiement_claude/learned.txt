@@ -1,0 +1,50 @@
+python lesson:
+with vision.GestureRecognizer.create_from_options(options) as recognizer:
+The with statement is Python's way of saying "set this up, and automatically clean it up when I'm done,
+ even if something crashes." The recognizer loads a machine learning model into memory and may open system resources. 
+ Using with guarantees those get released properly when the loop exits — you don't have to manually close anything.
+
+
+Mediapipe: 
+result = recognizer.recognize(mp_image)
+This is where MediaPipe actually does its work. You pass in one frame (wrapped as an mp.Image object), 
+and it runs the model and returns a result object containing:
+
+result.hand_landmarks — a list of 21 landmark positions per detected hand
+result.gestures — a list of ranked gesture guesses per hand (e.g. "Thumb_Up" at 94% confidence)
+result.handedness — whether each hand is left or right
+- if no hands detected then return None(s) and loops don't run
+
+
+for i, hand_landmarks in enumerate(result.hand_landmarks):
+    draw_landmarks(frame, hand_landmarks)
+
+    if result.gestures and i < len(result.gestures):
+        top = result.gestures[i][0]
+        draw_gesture_label(frame, top.category_name, top.score, i)
+
+the if loop is to ensure that only 1 gesture is being recorder per hand
+
+Imagine is good setting is good for simple learning project but not motion,
+later change setting for later projects if get more complex
+
+Output of result.handedness[i]
+[Category(index=1, score=0.9672826528549194, display_name='Left', category_name='Left')] 
+Is based on what the model sees and with the flipped it is the opposite
+-- challenge, keep the flipped camera image because easier on the eyes but display the correct hand
+
+Test -- adding a gesture
+pinch
+
+Also change the size of the camera image
+--------------------------
+cap = cv2.VideoCapture(CAMERA_ID)
+if not cap.isOpened():
+    raise RuntimeError(f"Cannot open camera {CAMERA_ID}")
+
+cv2.namedWindow("MediaPipe Gesture Recognizer", cv2.WINDOW_NORMAL)   # add this
+cv2.resizeWindow("MediaPipe Gesture Recognizer", 1280, 720)           # and this
+
+print("Press  Q  to quit.")
+
+The camera needs to be resized before going in the loop

@@ -9,6 +9,7 @@ git pull origin main --allow-unrelated-histories
 
 Learned it is important to research versions and compatability of version of python nad libraries
 --Add a requirement file
+pip freeze > requirements.txt    --> output of pip freeze is input to the file
 
 Learned if give infomation to claude in a previous chat that is now void. Need to intentional say that this doesn't mattter or work with the current set up.
 --Should make a 'project' on claude with access to this github repo and a link to mediapipe github
