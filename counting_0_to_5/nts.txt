@@ -1,0 +1,10 @@
+Change to video input
+- done
+
+
+THe counting and gun gesture is off due to the if thumb is extend of 
+if the palm is facing the user nad not the screen
+
+Need to check documentation on how they suggest adding personal gestures
+
+Learn how to add graphic to the screen like superhero powers
