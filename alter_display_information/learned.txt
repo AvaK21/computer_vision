@@ -1,0 +1,13 @@
+Error:
+\mediapipe_tasks\.venv\Lib\site-packages\mediapipe\tasks\python\core\mediapipe_c_utils.py", line 137, in dispatch_and_free
+    handle_status(status, error_msg)
+\mediapipe_tasks\.venv\Lib\site-packages\mediapipe\tasks\python\core\mediapipe_c_utils.py", line 232, in handle_status
+    raise exception
+RuntimeError: CalculatorGraph::Run() failed:
+Calculator::Process() for node "mediapipe_tasks_vision_gesture_recognizer_gesturerecognizergraph__mediapipe_tasks_vision_gesture_recognizer_multiplehandgesturerecognizergraph__mediapipe_tasks_vision_gesture_recognizer_singlehandgesturerecognizergraph__ConcatenateTensorVectorCalculator" failed: Packet isn't the sole owner of the holder.
+(.venv) PS C:\Users\ava\VS code codes\mediapipe_tasks>
+
+This is due to if 2 frames are the exact same there is an error so adding .copy() overrides the issue
+// temp fix while still in image method and not VideoCapture
+
+To do: Change to video
