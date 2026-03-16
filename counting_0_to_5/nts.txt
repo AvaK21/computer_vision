@@ -1,10 +1,34 @@
+
+
 Change to video input
 - done
+
+Claude for readablity will have the parameters of the same function take up roughly the same amount of space on the line so easier to see ex:
+    cv2.putText(frame, "Pinch", (21, y_pos + 1), FONT, 1.1, (0, 0, 0),     3)
+    cv2.putText(frame, "Pinch", (20, y_pos),     FONT, 1.1, (0, 200, 255), 2)
+
+
 
 
 THe counting and gun gesture is off due to the if thumb is extend of 
 if the palm is facing the user nad not the screen
+-- can be fixedish to compare pixel values of wrist and pinky but not good at hand at an angle and doesn't count thumb as extended for thumbs down
+-- tried angle between thumb tip, wrist and mcp - will count gun for if thumb is tunked under other fingers
+-- next is test if angle index tip, wrist, and thumb tip - might limitation when hand is horizontal- 
+-- will test out the value of angle at 
+thumb extended normal, - 60s
+ ideal gun position, - 50s
+  thumbs down , 115ish
+   thumb tunked, 30-40ish
+    fist - 45-48
+    open palm - 12-18
+
+gun works ish - test thumbs down, see if make better like use numpy vectors and @ for dot for effectiency
 
 Need to check documentation on how they suggest adding personal gestures
 
 Learn how to add graphic to the screen like superhero powers
+
+Divide in different files, gesture_functions/egine, display.py, and main.py
+
+

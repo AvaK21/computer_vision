@@ -21,6 +21,7 @@ MODEL_PATH      = "gesture_recognizer.task"
 CAMERA_ID       = 0
 FONT            = cv2.FONT_HERSHEY_SIMPLEX
 PINCH_THRESHOLD = 0.25
+THUMB_ANGLE_THRESHOLD = 25  # degrees — experimentally determined to match visual thumb extension
 
 # ── Gesture Style Map ─────────────────────────────────────────────────────────
 # BGR colors. To add a new gesture: one line here, display updates everywhere.
@@ -124,13 +125,64 @@ def _is_thumb_extended(hand_landmarks, is_right_hand):
     Using landmark 2 (the CMC joint) would include the thumb's natural
     sideways offset and produce false positives.
     """
-    tip = hand_landmarks[4]
-    ip  = hand_landmarks[3]
+    # tip = hand_landmarks[4]
+    # ip  = hand_landmarks[3]
 
-    if is_right_hand:
-        return tip.x < ip.x   # tip further left = extended outward
-    else:
-        return tip.x > ip.x   # tip further right = extended outward
+    # pinky_mcp = hand_landmarks[17]
+    # wrist     = hand_landmarks[0]
+
+    # is_thumb_extended = False
+
+
+    # if is_right_hand:
+    #     is_hand_flipped = pinky_mcp.x < wrist.x  # pinky base left of wrist = flipped
+    #     if is_hand_flipped:
+    #         is_thumb_extended = tip.x > ip.x   # tip further right = extended outward
+    #     else:
+    #         is_thumb_extended = tip.x < ip.x   # tip further left = extended outward
+    #     return is_thumb_extended 
+    # else:
+    #     is_hand_flipped = pinky_mcp.x > wrist.x  # pinky base right of wrist = flipped
+    #     if is_hand_flipped:
+    #         is_thumb_extended = tip.x < ip.x   # tip further left = extended outward
+    #     else:
+    #         is_thumb_extended = tip.x > ip.x   # tip further right = extended outward
+    #     return is_thumb_extended
+    #experiement 2 of thumb detection, issue with if hand not in ideal upright position.
+    # tip   = hand_landmarks[4]
+    # mcp   = hand_landmarks[2]
+    # wrist = hand_landmarks[0]
+
+    # return _dist(tip, wrist) > _dist(mcp, wrist)
+    index_tip = hand_landmarks[8]
+    cmc   = hand_landmarks[1]
+    thumb_tip   = hand_landmarks[4]
+
+    # Vector A: from CMC back toward wrist
+    ax = index_tip.x - cmc.x
+    ay = index_tip.y - cmc.y
+
+    # Vector B: from CMC forward toward tip
+    bx = thumb_tip.x - cmc.x
+    by = thumb_tip.y - cmc.y
+
+    # Dot product and magnitudes
+    dot      = ax * bx + ay * by
+    mag_a    = math.sqrt(ax**2 + ay**2)
+    mag_b    = math.sqrt(bx**2 + by**2)
+
+    # Guard against zero-length vectors (hand barely visible)
+    if mag_a < 1e-6 or mag_b < 1e-6:
+        return False
+
+    # Clamp to [-1, 1] before acos to avoid math domain errors from
+    # floating point noise slightly outside that range
+    cos_angle = max(-1.0, min(1.0, dot / (mag_a * mag_b)))
+    angle_deg = math.degrees(math.acos(cos_angle))
+
+    #print(f"thumb angle: {angle_deg:.1f}")
+    return angle_deg > THUMB_ANGLE_THRESHOLD
+
 
 def count_extended_fingers(hand_landmarks, handedness):
     """
@@ -178,7 +230,9 @@ def is_gun_shape(hand_landmarks, handedness):
     ring_up   = _is_finger_extended(ring_tip,   ring_pip,   wrist)
     pinky_up  = _is_finger_extended(pinky_tip,  pinky_pip,  wrist)
 
-    return thumb_up and index_up and not middle_up and not ring_up and not pinky_up
+    is_gun  = thumb_up and index_up and not middle_up and not ring_up and not pinky_up
+
+    return is_gun
 
 
 # ── Display helpers ───────────────────────────────────────────────────────────
@@ -305,7 +359,27 @@ def main():
             last_ts_ms = ts_ms
 
             result   = recognizer.recognize_for_video(mp_image,ts_ms)
+            # ── DIAGNOSTIC — remove after testing ────────────────────────────────────────
+            if result.hand_landmarks:
+                lm = result.hand_landmarks[0]  # just first hand
+                thumb_tip  = lm[4]
+                thumb_mcp  = lm[2]
+                index_tip  = lm[8]
 
+                # Vector A: MCP → thumb tip
+                ax, ay, az = thumb_tip.x - thumb_mcp.x, thumb_tip.y - thumb_mcp.y, thumb_tip.z - thumb_mcp.z
+                # Vector B: MCP → index tip
+                bx, by, bz = index_tip.x - thumb_mcp.x, index_tip.y - thumb_mcp.y, index_tip.z - thumb_mcp.z
+
+                dot   = ax*bx + ay*by + az*bz
+                mag_a = math.sqrt(ax**2 + ay**2 + az**2)
+                mag_b = math.sqrt(bx**2 + by**2 + bz**2)
+
+                if mag_a > 1e-6 and mag_b > 1e-6:
+                    cos_angle = max(-1.0, min(1.0, dot / (mag_a * mag_b)))
+                    angle_deg = math.degrees(math.acos(cos_angle))
+                    print(f"thumb-MCP-index angle: {angle_deg:.1f}")
+            # ── END DIAGNOSTIC ────────────────────────────────────────────────────────────
             for i, hand_landmarks in enumerate(result.hand_landmarks):
                 draw_landmarks(frame, hand_landmarks)
 
