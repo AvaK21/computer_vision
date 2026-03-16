@@ -77,9 +77,10 @@ def draw_pinch_label(frame, hand_index):
 #---Helper functions---------------------------
 
 #If it if finiky, remove the z comoponent and just do 2D distance, z is technicallly on a different scale
+#taking out the z made more range was accepted as a pinch
 def landmark_distance(lm1,lm2):
     """Calculate the Euclidean distance between two landmarks."""
-    return math.sqrt((lm1.x - lm2.x) ** 2 + (lm1.y - lm2.y) ** 2 + (lm1.z - lm2.z) ** 2)
+    return math.sqrt((lm1.x - lm2.x) ** 2 + (lm1.y - lm2.y) ** 2 )
 def is_pinching(hand_landmarks):
     """Return True if thumb tip (4) and index tip (8) are close enough to count as a pinch.
     
